@@ -1,4 +1,26 @@
-# Better2gether Care Harness — Agent Framework × Azure AI Foundry × Databricks Genie
+<div align="center">
+
+<img src="https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" alt="Microsoft" height="36" />&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Microsoft_Azure.svg" alt="Azure AI Foundry" height="44" />&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://upload.wikimedia.org/wikipedia/commons/6/63/Databricks_Logo.png" alt="Databricks" height="44" />
+
+<h1>Better2gether Care Harness</h1>
+
+<b>Microsoft Agent Framework harness × Azure AI Foundry × Databricks Genie</b><br/>
+<i>The agent pattern that respects Unity Catalog — implemented end-to-end</i>
+
+<br/>
+
+<img src="https://img.shields.io/badge/Azure%20AI%20Foundry-hosted%20agent-0078D4?logo=microsoftazure&logoColor=white" />
+<img src="https://img.shields.io/badge/Agent%20Framework-harness%201.12-5E5E5E" />
+<img src="https://img.shields.io/badge/Databricks-Genie%20%2B%20Agent%20Bricks-FF3621?logo=databricks&logoColor=white" />
+<img src="https://img.shields.io/badge/Unity%20Catalog-governed-1B3139" />
+
+</div>
+
+---
+
+
 
 POC of the **[Microsoft Agent Framework harness](https://learn.microsoft.com/en-us/agent-framework/agents/harness)**
 (`create_harness_agent`, released July 2026) running on **Azure AI Foundry**, with the
@@ -32,6 +54,43 @@ Two agentic runtimes, cleanly separated:
   question needs Genie (SQL over the wellness telemetry), the Knowledge Assistant
   (program docs), the web, or all three. The harness treats it as one tool and
   surfaces the routing in its answers (`[care-copilot routing: consulted …]`).
+
+## The pattern — "the agent pattern that respects Unity Catalog"
+
+This POC is a working implementation of the architecture described by Pablo Castaño in
+**[Microsoft Foundry + Databricks Genie: the agent pattern that respects Unity Catalog](https://medium.com/@depablocastano/microsoft-foundry-databricks-genie-the-agent-pattern-that-respects-unity-catalog-a5a06852c5f9)**:
+a Foundry agent owns the conversation, delegates analytical questions to a **Databricks Genie
+Space**, and lets **Unity Catalog** — not the agent — decide who sees what. No shadow permission
+model, no re-implemented access control: the agent asks, Genie translates to SQL over certified
+tables, Unity Catalog enforces grants at query time.
+
+<p align="center">
+  <img src="https://miro.medium.com/v2/resize:fit:700/1*jMNvY7AHJrxKHci1XdE8Gw.png" width="680" alt="Foundry Agent delegates analytical questions to a Databricks Genie Space over Unity Catalog"/>
+  <br/><sub>A Foundry Agent handles the conversation, then delegates analytical questions to a Databricks Genie Space over Unity Catalog. <i>Diagram © <a href="https://medium.com/@depablocastano">Pablo Castaño</a>, from the article.</i></sub>
+</p>
+
+<p align="center">
+  <img src="https://miro.medium.com/v2/resize:fit:700/1*vHuG53ULNc9MUaDBxOAz1Q.png" width="680" alt="Runtime sequence: token exchange and Genie call, Unity Catalog enforces who can see what"/>
+  <br/><sub>Runtime sequence — the caller's token is forwarded with the Genie call and Unity Catalog enforces who can see what. <i>Diagram © <a href="https://medium.com/@depablocastano">Pablo Castaño</a>, from the article.</i></sub>
+</p>
+
+<p align="center">
+  <img src="https://miro.medium.com/v2/resize:fit:700/1*f_V8V6z379S3mMl4J9gVPg.png" width="680" alt="Two users hit the same Foundry Agent; Unity Catalog decides who sees what"/>
+  <br/><sub>The VP and the regional rep hit the same agent; Unity Catalog decides who sees what. <i>Diagram © <a href="https://medium.com/@depablocastano">Pablo Castaño</a>, from the article.</i></sub>
+</p>
+
+### How this repo maps to the article
+
+| Article component | This POC |
+|---|---|
+| Foundry Agent (conversation + routing) | Agent Framework **harness** (`create_harness_agent`, gpt-5.4-mini) — local CLI *and* Foundry **hosted agent** `care-agent` |
+| Databricks Genie Space (NL → SQL over certified data) | Genie space `Better2gether Care — Vitals & Fleet` over `better2gether.care_copilot` (fronted by an Agent Bricks Multi-Agent Supervisor endpoint) |
+| Unity Catalog governance | Least-privilege UC grants: `USE CATALOG` / `USE SCHEMA` / `SELECT` / `CAN_RUN` on the Genie space / `CAN_QUERY` on the serving endpoints — the caller's identity is what Genie executes as |
+| Identity through the chain | **Today:** a scoped service principal (M2M OAuth, secret in Key-Vault-able env) — the Supervisor runs Genie *as the caller*, so its UC grants are the ceiling. **Next step:** per-user Entra **on-behalf-of** passthrough exactly as the article describes, so row-level security and masking resolve per end user. |
+
+The delta between "today" and "next step" is the demo's best conversation starter: the wiring,
+tools, and governance surfaces are identical — only the token in the `Authorization` header
+changes.
 
 ## Layout
 
