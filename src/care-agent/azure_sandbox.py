@@ -23,10 +23,26 @@ import time
 
 from agent_framework import FunctionTool, tool
 from agent_framework_tools.shell._types import ShellResult
-from azure.containerapps.sandbox import SandboxGroupClient, endpoint_for_region
+from azure.containerapps.sandbox import (
+    EgressHostRule,
+    EgressPolicy,
+    SandboxGroupClient,
+    endpoint_for_region,
+)
 from azure.identity import DefaultAzureCredential
 
 _SHELL_TOOL_KIND = "shell"
+
+# Governed egress: the sandbox may reach approved health-authority domains only;
+# everything else is denied AND logged as an egress decision (Network Audit).
+_DEFAULT_EGRESS_ALLOW = [
+    "*.who.int",
+    "www.who.int",
+    "*.mayoclinic.org",
+    "*.cdc.gov",
+    "*.nih.gov",
+    "*.nhs.uk",
+]
 
 
 class AzureSandboxShellTool:
@@ -44,6 +60,8 @@ class AzureSandboxShellTool:
         timeout: float = 60.0,
         max_output_bytes: int = 65536,
         approval_mode: str = "never_require",
+        egress_allow: list[str] | None = None,
+        egress_default: str = "Deny",
     ) -> None:
         self._region = region
         self._disk_image = disk_image
@@ -51,6 +69,8 @@ class AzureSandboxShellTool:
         self._timeout = timeout
         self._max_output_bytes = max_output_bytes
         self._approval_mode = approval_mode
+        self._egress_allow = _DEFAULT_EGRESS_ALLOW if egress_allow is None else egress_allow
+        self._egress_default = egress_default
 
         self._credential = DefaultAzureCredential()
         self._group = SandboxGroupClient(
@@ -83,6 +103,14 @@ class AzureSandboxShellTool:
                         labels={"name": "care-agent-harness"},
                     ).result()
                 )
+                # Apply governed egress BEFORE any command runs, so every request
+                # is inspected and logged as an allow/deny decision (Network Audit).
+                policy = EgressPolicy(
+                    default_action=self._egress_default,
+                    host_rules=[EgressHostRule(pattern=p, action="Allow") for p in self._egress_allow],
+                    traffic_inspection="Full",
+                )
+                await asyncio.to_thread(lambda: sandbox.set_egress_policy(policy))
                 await asyncio.to_thread(
                     lambda: sandbox.exec(f"mkdir -p {self._workdir}", timeout=self._timeout)
                 )
