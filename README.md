@@ -25,23 +25,9 @@ POC of the **[Microsoft Agent Framework harness](https://learn.microsoft.com/en-
 **Databricks Agent Bricks "Care Copilot"** — a Multi-Agent Supervisor that routes to a
 **Genie space**, a **Knowledge Assistant**, and a **web tool** — wired in as a first-class tool.
 
-```mermaid
-flowchart LR
-    U[Care agent / CLI] --> H
+<p align="center"><img src="docs/architecture.jpeg" alt="Microsoft Agent Harness Architecture - Teams to Agent Framework harness on Azure AI Foundry to Databricks (Genie + Unity Catalog)" width="980"/></p>
 
-    subgraph Azure["Azure AI Foundry — b2g-care-foundry / care-poc"]
-        H["Agent Framework HARNESS<br/>(gpt-5.4-mini)<br/>tool loop · todo/plan · modes ·<br/>file memory · compaction ·<br/>history persistence · OTel"]
-    end
-
-    H -- "ask_care_copilot(question)<br/>OAuth M2M bearer (auto-refresh)" --> S
-
-    subgraph Databricks["Databricks — Agent Bricks"]
-        S["Care Copilot<br/>Multi-Agent Supervisor<br/>mas-a8f5ce73-endpoint"]
-        S --> G["Genie space<br/>IoT telemetry SQL"]
-        S --> K["Knowledge Assistant<br/>SOPs · alert glossary · RMA"]
-        S --> W["Web tool<br/>WHO / Mayo guidance"]
-    end
-```
+> Architecture at a glance. (Diagram labels show the original demo values; this deployment runs **gpt-5.4-mini** and endpoint **mas-cebe7f3f-endpoint**.)
 
 Two agentic runtimes, cleanly separated:
 
