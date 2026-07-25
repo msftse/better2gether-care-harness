@@ -1,0 +1,6 @@
+subscription_id = "04197a4f-e8b8-449d-8774-b0a9484fab46"
+tenant_id       = "16b3c013-d300-468d-ac64-7eda0820b6d3"
+location        = "northcentralus"
+
+foundry_account_id          = "/subscriptions/04197a4f-e8b8-449d-8774-b0a9484fab46/resourceGroups/rg-care-agent-dev/providers/Microsoft.CognitiveServices/accounts/cog-nw4gunns5btr2"
+foundry_agent_responses_url = "https://cog-nw4gunns5btr2.services.ai.azure.com/api/projects/care-agent-dev/agents/care-agent/endpoint/protocols/openai/responses?api-version=v1"

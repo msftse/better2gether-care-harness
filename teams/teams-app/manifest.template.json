@@ -1,0 +1,50 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.22/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.22",
+  "version": "1.0.0",
+  "id": "__BOT_APP_ID__",
+  "developer": {
+    "name": "Better2gether Care Copilot",
+    "websiteUrl": "https://github.com/msftse/better2gether-care-harness",
+    "privacyUrl": "https://privacy.microsoft.com/privacystatement",
+    "termsOfUseUrl": "https://www.microsoft.com/servicesagreement"
+  },
+  "name": {
+    "short": "Care Copilot",
+    "full": "Better2gether Care Copilot"
+  },
+  "description": {
+    "short": "Ask about member vitals, alerts, and care guidance.",
+    "full": "Tag Care Copilot in a Teams conversation to ask about member vitals and fleet data (answered by Databricks Genie under Unity Catalog governance) or care procedures and policies (answered from the care knowledge base) — powered by a Microsoft Agent Framework harness hosted on Azure AI Foundry."
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "accentColor": "#0078D4",
+  "bots": [
+    {
+      "botId": "__BOT_APP_ID__",
+      "scopes": ["personal", "team", "groupChat"],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": ["personal", "team", "groupChat"],
+          "commands": [
+            {
+              "title": "ask",
+              "description": "Ask about member vitals, alerts, or care guidance"
+            },
+            {
+              "title": "/start",
+              "description": "Start a fresh Care Copilot conversation"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": []
+}
