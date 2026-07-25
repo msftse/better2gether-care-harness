@@ -47,5 +47,13 @@ services:
               value: ${DATABRICKS_CLIENT_ID}
             - name: DATABRICKS_CLIENT_SECRET
               value: ${DATABRICKS_CLIENT_SECRET}
+            - name: SANDBOX_GROUP
+              value: ${SANDBOX_GROUP}
+            - name: SANDBOX_SUBSCRIPTION_ID
+              value: ${SANDBOX_SUBSCRIPTION_ID}
+            - name: SANDBOX_RESOURCE_GROUP
+              value: ${SANDBOX_RESOURCE_GROUP}
+            - name: SANDBOX_REGION
+              value: ${SANDBOX_REGION}
 infra:
     provider: microsoft.foundry

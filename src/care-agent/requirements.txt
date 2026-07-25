@@ -5,6 +5,7 @@ agent-framework-core==1.12.1
 agent-framework-foundry==1.10.3
 agent-framework-foundry-hosting==1.0.0b260722
 agent-framework-tools==1.0.0b260721
+azure-containerapps-sandbox
 azure-identity
 httpx
 pydantic

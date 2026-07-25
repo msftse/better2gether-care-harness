@@ -15,6 +15,7 @@ from agent_framework_tools.shell import LocalShellTool, ShellPolicy
 from azure.identity import DefaultAzureCredential
 from dotenv import load_dotenv
 
+from azure_sandbox import maybe_build_from_env as maybe_build_azure_sandbox
 from care_copilot import CareCopilotClient, make_care_copilot_tool
 from care_kb import search_care_kb
 
@@ -70,18 +71,24 @@ def main() -> None:
     care_kb_tool = tool(approval_mode="never_require")(search_care_kb)
 
     # Sandboxed shell: the harness's general-purpose tool (compute, transform,
-    # and web via curl). Confined to a writable /tmp workdir inside the
-    # container; deny-list is a UX pre-filter, the sandbox is the boundary.
-    sandbox_dir = "/tmp/agent-sandbox"
-    os.makedirs(sandbox_dir, exist_ok=True)
-    shell = LocalShellTool(
-        workdir=sandbox_dir,
-        confine_workdir=True,
-        policy=ShellPolicy(denylist=[r"\brm\s+-rf\b", r"\bsudo\b", r"\bshutdown\b", r"\breboot\b", r"\bmkfs\b"]),
-        approval_mode="never_require",
-        acknowledge_unsafe=True,
-        timeout=60.0,
-    )
+    # and web via curl). Prefer Azure Container Apps Sandboxes — each command
+    # runs in a hardware-isolated microVM on sandboxes.azure.com — and fall back
+    # to an in-container LocalShellTool when SANDBOX_GROUP isn't configured.
+    shell = maybe_build_azure_sandbox()
+    if shell is not None:
+        print("Shell backend: Azure Container Apps Sandboxes (microVM)")
+    else:
+        sandbox_dir = "/tmp/agent-sandbox"
+        os.makedirs(sandbox_dir, exist_ok=True)
+        shell = LocalShellTool(
+            workdir=sandbox_dir,
+            confine_workdir=True,
+            policy=ShellPolicy(denylist=[r"\brm\s+-rf\b", r"\bsudo\b", r"\bshutdown\b", r"\breboot\b", r"\bmkfs\b"]),
+            approval_mode="never_require",
+            acknowledge_unsafe=True,
+            timeout=60.0,
+        )
+        print("Shell backend: LocalShellTool (in-container)")
 
     agent = create_harness_agent(
         client,
