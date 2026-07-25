@@ -1,0 +1,10 @@
+# Slim, remote-build-friendly set. The 'agent-framework' meta package activates
+# platform extras on Linux (agent-framework-hyperlight -> unresolvable pins in
+# the Foundry build container), so depend on exactly what the agent uses:
+agent-framework-core==1.12.1
+agent-framework-foundry==1.10.3
+agent-framework-foundry-hosting==1.0.0b260722
+azure-identity
+httpx
+pydantic
+python-dotenv

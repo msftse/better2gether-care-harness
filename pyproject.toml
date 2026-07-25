@@ -1,0 +1,30 @@
+[project]
+name = "care-harness"
+version = "0.1.0"
+description = "Better2gether Care Copilot — Microsoft Agent Framework harness on Azure AI Foundry with the Databricks Agent Bricks care agent (Genie + Knowledge Assistant + web) as a tool"
+requires-python = ">=3.12"
+dependencies = [
+    "agent-framework>=1.12.1",
+    "azure-identity>=1.26.0b2",
+    "httpx>=0.28.1",
+    "python-dotenv>=1.2.2",
+    "rich>=15.0.0",
+]
+
+[project.scripts]
+care-harness = "care_harness.main:cli"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/care_harness"]
+
+[tool.uv]
+prerelease = "allow"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

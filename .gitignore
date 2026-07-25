@@ -1,0 +1,7 @@
+.env
+.sp_secret
+.venv/
+__pycache__/
+*.pyc
+.harness/
+agent-file-memory/

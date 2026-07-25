@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+requiredVersions:
+    extensions:
+        azure.ai.agents: '>=1.0.0-beta.4'
+name: b2g-care-harness
+services:
+    ai-project:
+        host: azure.ai.project
+        deployments:
+            - name: gpt-5.4-mini
+              model:
+                  format: OpenAI
+                  name: gpt-5.4-mini
+                  version: '2026-03-17'
+              sku:
+                  name: GlobalStandard
+                  capacity: 30
+    care-agent:
+        project: ./src/care-agent
+        host: azure.ai.agent
+        language: python
+        uses:
+            - ai-project
+        codeConfiguration:
+            dependencyResolution: remote_build
+            entryPoint: main.py
+            runtime: python_3_13
+        container:
+            resources:
+                cpu: "0.5"
+                memory: 1Gi
+        kind: hosted
+        name: care-agent
+        description: Better2gether care-team copilot — Agent Framework harness with the Databricks Care Copilot (Genie) and a care-KB tool.
+        protocols:
+            - protocol: responses
+              version: 2.0.0
+        environmentVariables:
+            - name: AZURE_AI_MODEL_DEPLOYMENT_NAME
+              value: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
+            - name: DATABRICKS_HOST
+              value: ${DATABRICKS_HOST}
+            - name: DATABRICKS_SERVING_ENDPOINT
+              value: ${DATABRICKS_SERVING_ENDPOINT}
+            - name: DATABRICKS_CLIENT_ID
+              value: ${DATABRICKS_CLIENT_ID}
+            - name: DATABRICKS_CLIENT_SECRET
+              value: ${DATABRICKS_CLIENT_SECRET}
+infra:
+    provider: microsoft.foundry
